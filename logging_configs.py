@@ -3,6 +3,7 @@ Logging configs
 """
 
 import logging
+
 from colorlog import ColoredFormatter
 
 

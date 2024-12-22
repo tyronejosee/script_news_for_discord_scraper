@@ -8,7 +8,7 @@ import logging
 
 import requests
 from dotenv import load_dotenv
-from .logging_configs import setup_logging
+from logging_configs import setup_logging
 
 load_dotenv()
 setup_logging()
@@ -60,7 +60,11 @@ def scrape_and_send():
     existing_data = load_persisted_data()
 
     # Simulating new scraped data
-    scraped_data = ["News 1", "News 2"]
+    scraped_data = [
+        "https://www.emol.com/noticias/Nacional/2024/12/19/1151792/frente-amplio-volanteo-masivo-reforma.html",
+        "https://www.emol.com/noticias/Nacional/2024/12/21/1152083/fuero-parlamentario-congresistas-investigados.html",
+        "https://www.emol.com/noticias/Nacional/2024/12/21/1152093/lactante-muere-atacada-pitbull-maule.html",
+    ]
 
     # Filter new data that is not in the persisted list
     new_data = [item for item in scraped_data if item not in existing_data]
