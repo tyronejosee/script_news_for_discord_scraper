@@ -11,6 +11,8 @@ python = "^3.11"
 python-dotenv = "^1.0.1"
 requests = "^2.32.3"
 colorlog = "^6.9.0"
+beautifulsoup4 = "^4.12.3"
+supabase = "^2.10.0"
 
 
 [build-system]
