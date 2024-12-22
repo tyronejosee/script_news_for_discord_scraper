@@ -101,12 +101,9 @@ def scrape_lacuarta():
 
 def scrape_and_send():
     # Load the already persisted data
-    existing_data = load_persisted_data()
-    scraped_data = []
-    scraped_data.extend(scrape_lacuarta())
-
-    # Filter new data that is not in the persisted list
-    new_data = [item for item in scraped_data if item not in existing_data]
+    existing_data = set(load_persisted_data())
+    scraped_data = set(scrape_lacuarta())
+    new_data = scraped_data - existing_data
 
     if new_data:
         # Send to Discord
