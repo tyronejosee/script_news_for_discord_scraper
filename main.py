@@ -8,7 +8,7 @@ import logging
 
 import requests
 from dotenv import load_dotenv
-from .logging import setup_logging
+from .logging_configs import setup_logging
 
 load_dotenv()
 setup_logging()
