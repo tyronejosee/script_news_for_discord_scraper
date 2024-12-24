@@ -2,17 +2,18 @@
 Scraper for Google Trends.
 """
 
-import requests
-from bs4 import BeautifulSoup
+from typing import List, Any
+
+from pytrends.request import TrendReq
 
 
-def scrape_google_trends():
-    url = "https://trends.google.com/trending?geo=CL"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
+def scrape_google_trends() -> List[str]:
+    pytrends: TrendReq = TrendReq(hl="en-US", tz=360)
+    links: List[str] = []
 
-    selectors = soup.find_all("div", class_="mZ3RIc")
-    links = []
-    for selector in selectors:
-        links.append(selector)
+    trending_searches: Any = pytrends.trending_searches(pn="chile")
+    trends: List[str] = trending_searches[0].tolist()
+
+    for trend in trends:
+        links.append(f"🔍 **{trend}**")
     return links

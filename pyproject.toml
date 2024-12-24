@@ -13,6 +13,7 @@ requests = "^2.32.3"
 colorlog = "^6.9.0"
 beautifulsoup4 = "^4.12.3"
 supabase = "^2.10.0"
+pytrends = "^4.9.2"
 
 
 [build-system]

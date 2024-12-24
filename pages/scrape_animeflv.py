@@ -2,30 +2,33 @@
 Scraper for AnimeFLV.
 """
 
+from typing import List, Any
+
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import ResultSet
 
 from core.utils import get_current_timestamp_extend
 
 
-def scrape_animeflv():
+def scrape_animeflv() -> List[str]:
     """Scraper for AnimeFLV."""
-    url = "https://m.animeflv.net"
-    response = requests.get(url)
+    url: str = "https://m.animeflv.net"
+    response: requests.Response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
 
     # Get the current timestamp
-    timestamp = get_current_timestamp_extend()
+    timestamp: str = get_current_timestamp_extend()
 
     # Find all <li> elements with class "Episode"
-    divs = soup.find_all("li", class_="Episode")
-    links = []
+    divs: ResultSet[Any] = soup.find_all("li", class_="Episode")
+    links: List[str] = []
 
     for div in divs:
         # Find the <a> tag and extract the href (link)
         a_tag = div.find("a", href=True)
         if a_tag:
-            link = a_tag["href"]
+            link: str = a_tag["href"]
             if not link.startswith("http"):
                 link = f"{url}{link}"
 
@@ -47,14 +50,13 @@ def scrape_animeflv():
             p_tag = div.find("p")
             episode = p_tag.get_text(strip=True) if p_tag else ""
 
-            episode_number = (
+            episode_number: str = (
                 episode.replace("Episodio", "").strip()
                 if episode.startswith("Episodio")
                 else "Unknown"
             )
-            formatted_episode = f"Episodio {episode_number}"
+            formatted_episode: str = f"Episodio {episode_number}"
 
-            # Append the link, image link, and title to the list
             links.append(
                 f"# {title_text} - {formatted_episode}\n\n> `{timestamp}`\n\nImage: {img_link}\nLink: <{link}>"
             )

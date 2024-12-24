@@ -5,9 +5,25 @@ import logging
 
 from datetime import datetime
 
+from .config import ROMAN_NUMERALS, EXCEPTIONS
 from .logging import setup_logging
 
 setup_logging()
+
+
+def format_title(title: str) -> str:
+    """Formats the text using camel case."""
+    words: list[str] = title.split()
+    formatted_title: list[str] = [
+        (
+            word
+            if word.upper() in ROMAN_NUMERALS
+            else (word.capitalize() if word.lower() not in EXCEPTIONS else word.lower())
+        )
+        for word in words
+    ]
+    formatted_title[0] = formatted_title[0].capitalize()
+    return " ".join(formatted_title)
 
 
 def save_results(output_file, new_data):
@@ -30,7 +46,7 @@ def get_current_timestamp_simple() -> str:
 
 def get_current_timestamp_extend() -> str:
     # Define the day and month names in Spanish
-    days_of_week = [
+    days_of_week: list[str] = [
         "Lunes",
         "Martes",
         "Miércoles",
@@ -39,7 +55,7 @@ def get_current_timestamp_extend() -> str:
         "Sábado",
         "Domingo",
     ]
-    months_of_year = [
+    months_of_year: list[str] = [
         "Enero",
         "Febrero",
         "Marzo",
@@ -55,12 +71,12 @@ def get_current_timestamp_extend() -> str:
     ]
 
     # Get the current date and time
-    now = datetime.now()
+    now: datetime = datetime.now()
 
     # Get the weekday and month, and format the date in Spanish
-    weekday = days_of_week[now.weekday()]
-    day = now.day
-    month = months_of_year[now.month - 1]  # Adjust because month starts from 1
-    year = now.year
+    weekday: str = days_of_week[now.weekday()]
+    day: int = now.day
+    month: str = months_of_year[now.month - 1]  # Adjust because month starts from 1
+    year: int = now.year
 
     return f"{weekday}, {day} de {month} {year}"
