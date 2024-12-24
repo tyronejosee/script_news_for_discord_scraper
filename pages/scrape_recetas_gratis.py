@@ -13,7 +13,11 @@ from core.utils import format_title
 
 def scrape_recetas_gratis() -> List[str]:
     url = "https://www.recetasgratis.net"
-    response: requests.Response = requests.get(url)
+    headers: dict[str, str] = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+    }
+
+    response: requests.Response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
 
     selectors: ResultSet[Any] = soup.find_all(
