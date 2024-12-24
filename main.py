@@ -3,75 +3,38 @@ News for Discord Scraper
 """
 
 import json
-import os
 import logging
 import time
+import argparse
+
 import requests
-
 from dotenv import load_dotenv
-from bs4 import BeautifulSoup
-from supabase import create_client, Client
 
-from logging_configs import setup_logging
+from core.config import WEBHOOKS
+from core.logging import setup_logging
+from core.db import load_data
+from core.utils import save_results
+from pages.scrape_lacuarta import scrape_lacuarta
+from pages.scrape_somoskudasai import scrape_somoskudazai
+from pages.scrape_animeflv import scrape_animeflv
+from pages.scrape_recetas_gratis import scrape_recetas_gratis
+
+# from pages.scrape_google_trends import scrape_google_trends
 
 load_dotenv()
 setup_logging()
 
 
-WEBHOOK_URL: str = os.environ.get("WEBHOOK_URL")
-if WEBHOOK_URL is None:
-    raise ValueError("WEBHOOK_URL environment variable is not set.")
-
-# Supabase credentials
-SUPABASE_URL: str = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY: str = os.environ.get("SUPABASE_KEY")
-if SUPABASE_URL is None or SUPABASE_KEY is None:
-    raise ValueError("Supabase credentials not set in environment variables.")
-
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-
-def load_persisted_data():
-    """Loads the persisted data from Supabase."""
-    try:
-        response = supabase.table("scraped_data").select("*").execute()
-        return [record["url"] for record in response.data]
-    except Exception as e:
-        logging.error(f"Error loading data from Supabase: {e}")
-        return []
-
-
-def save_data(new_data):
-    """Saves the new data to Supabase."""
-    try:
-        for item in new_data:
-            # Check if URL already exists in Supabase to avoid duplicates
-            existing = (
-                supabase.table("scraped_data").select("url").eq("url", item).execute()
-            )
-            if existing.data:
-                logging.info(f"Duplicate URL found, skipping: {item}")
-                continue
-            # Insert new data
-            supabase.table("scraped_data").insert({"url": item}).execute()
-        logging.info("New data saved successfully.")
-    except Exception as e:
-        logging.error(f"Error saving data to Supabase: {e}")
-
-
-def send_to_discord(message):
-    """Sends a message to Discord via the webhook."""
-    payload = {"content": message}  # The content of the message
+def send_to_discord(message, webhook_url):
+    """Sends a message to Discord using the specified webhook."""
+    payload = {"content": message}
     headers = {"Content-Type": "application/json"}
-
-    # Make the POST request to the webhook
     response = requests.post(
-        WEBHOOK_URL,
+        webhook_url,
         data=json.dumps(payload),
         headers=headers,
     )
 
-    # Check if the request was successful
     if response.status_code == 204:
         logging.info(f"Message successfully sent: {message}")
     elif response.status_code == 429:
@@ -80,42 +43,56 @@ def send_to_discord(message):
         logging.error(f"Error sending message: {response.status_code}")
 
 
-def scrape_lacuarta():
-    url = "https://www.lacuarta.com/"
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
+def scrape_and_send(scraper_name, scraper_function):
+    """Runs a scraper and sends new data to Discord."""
+    webhook_url = WEBHOOKS.get(scraper_name)
+    if not webhook_url:
+        logging.error(f"No webhook configured for {scraper_name}.")
+        return
 
-    divs = soup.find_all("div", class_="story-card-image article-image")
-
-    links = []
-    for div in divs:
-        a_tag = div.find("a", href=True)
-        if a_tag:
-            link = a_tag["href"]
-            if not link.startswith("http"):
-                link = f"https://www.lacuarta.com{link}"
-            links.append(link)
-
-    return links
-
-
-def scrape_and_send():
-    # Load the already persisted data
-    existing_data = set(load_persisted_data())
-    scraped_data = set(scrape_lacuarta())
+    # Load persisted data
+    existing_data = set(load_data())
+    scraped_data = set(scraper_function())
     new_data = scraped_data - existing_data
 
+    output_file = "list.txt"
     if new_data:
         # Send to Discord
         for item in new_data:
-            send_to_discord(item)
+            send_to_discord(item, webhook_url)
             time.sleep(1)
 
-        # Save the new persisted data
-        save_data(new_data)
+        # Save new data
+        # save_data(new_data)
+        save_results(output_file, new_data)
     else:
-        logging.error("No new data to send.")
+        logging.info(f"No new data to send from {scraper_name}.")
+
+
+def scrape_by_interval(interval):
+    """Runs scrapers based on the provided interval."""
+    if interval == "hourly":
+        scrape_and_send("la_cuarta", scrape_lacuarta)
+        scrape_and_send("somoskudasai", scrape_somoskudazai)
+        scrape_and_send("animeflv", scrape_animeflv)
+    elif interval == "daily":
+        scrape_and_send("recetas_gratis", scrape_recetas_gratis)
+        # scrape_and_send("google_trends", scrape_google_trends)
+    else:
+        logging.error(f"Invalid interval specified: {interval}")
 
 
 if __name__ == "__main__":
-    scrape_and_send()
+    parser = argparse.ArgumentParser(
+        description="Run a specific scraper at defined intervals."
+    )
+    parser.add_argument(
+        "interval",
+        type=str,
+        choices=["hourly", "daily"],
+        help="The interval at which to run the scrapers.",
+    )
+    args = parser.parse_args()
+
+    logging.info(f"Running scraper with interval: {args.interval}")
+    scrape_by_interval(args.interval)
