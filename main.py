@@ -12,7 +12,7 @@ from dotenv import load_dotenv
 
 from core.config import WEBHOOKS
 from core.logging import setup_logging
-from core.db import load_data
+from core.db import load_data, save_data
 from core.utils import save_results
 from pages.scrape_lacuarta import scrape_lacuarta
 from pages.scrape_somoskudasai import scrape_somoskudazai
@@ -63,7 +63,7 @@ def scrape_and_send(scraper_name, scraper_function):
             time.sleep(1)
 
         # Save new data
-        # save_data(new_data)
+        save_data(new_data)
         save_results(output_file, new_data)
     else:
         logging.info(f"No new data to send from {scraper_name}.")
@@ -75,9 +75,10 @@ def scrape_by_interval(interval):
         scrape_and_send("la_cuarta", scrape_lacuarta)
         scrape_and_send("somoskudasai", scrape_somoskudazai)
         scrape_and_send("animeflv", scrape_animeflv)
-    elif interval == "daily":
         scrape_and_send("recetas_gratis", scrape_recetas_gratis)
+    elif interval == "daily":
         # scrape_and_send("google_trends", scrape_google_trends)
+        pass
     else:
         logging.error(f"Invalid interval specified: {interval}")
 

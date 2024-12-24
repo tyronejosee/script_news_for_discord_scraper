@@ -9,12 +9,11 @@ on:
       - main
   schedule:
     - cron: '0 * * * *' # every hour
-    - cron: '30 6 * * *' # every day at 6:30 AM
+    # - cron: '30 6 * * *' # every day at 6:30 AM
 
 jobs:
   scrape_hourly:
     runs-on: ubuntu-latest
-    if: github.event.schedule == '0 * * * *'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -41,31 +40,30 @@ jobs:
           RECETAS_GRATIS_WEBHOOK: ${{ secrets.RECETAS_GRATIS_WEBHOOK }}
           GOOGLE_TRENDS_WEBHOOK: ${{ secrets.GOOGLE_TRENDS_WEBHOOK }}
 
-  scrape_daily:
-    runs-on: ubuntu-latest
-    if: github.event.schedule == '30 6 * * *'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+  # scrape_daily:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11.7"
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: "3.11.7"
       
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+  #     - name: Install dependencies
+  #       run: |
+  #         python -m pip install --upgrade pip
+  #         pip install -r requirements.txt
     
-      - name: Run scraper
-        run: |
-          python main.py daily
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-          LA_CUARTA_WEBHOOK: ${{ secrets.LA_CUARTA_WEBHOOK }}
-          SOMOSKUDASAI_WEBHOOK: ${{ secrets.SOMOSKUDASAI_WEBHOOK }}
-          ANIMEFLV_WEBHOOK: ${{ secrets.ANIMEFLV_WEBHOOK }}
-          RECETAS_GRATIS_WEBHOOK: ${{ secrets.RECETAS_GRATIS_WEBHOOK }}
-          GOOGLE_TRENDS_WEBHOOK: ${{ secrets.GOOGLE_TRENDS_WEBHOOK }}
+  #     - name: Run scraper
+  #       run: |
+  #         python main.py daily
+  #       env:
+  #         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  #         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+  #         LA_CUARTA_WEBHOOK: ${{ secrets.LA_CUARTA_WEBHOOK }}
+  #         SOMOSKUDASAI_WEBHOOK: ${{ secrets.SOMOSKUDASAI_WEBHOOK }}
+  #         ANIMEFLV_WEBHOOK: ${{ secrets.ANIMEFLV_WEBHOOK }}
+  #         RECETAS_GRATIS_WEBHOOK: ${{ secrets.RECETAS_GRATIS_WEBHOOK }}
+  #         GOOGLE_TRENDS_WEBHOOK: ${{ secrets.GOOGLE_TRENDS_WEBHOOK }}
