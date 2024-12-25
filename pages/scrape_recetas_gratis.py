@@ -18,12 +18,17 @@ setup_logging()
 def scrape_recetas_gratis() -> List[str]:
     url = "https://www.recetasgratis.net/"
     headers: dict[str, str] = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+            "(KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        )
     }
 
     response: requests.Response = requests.get(url, headers=headers)
     soup = BeautifulSoup(response.text, "html.parser")
-    logging.info(response.status_code)
+
+    if response.status_code == 403:
+        logging.error(f"Access forbidden: {response.text}")
 
     selectors: ResultSet[Any] = soup.find_all(
         "a",
