@@ -20,8 +20,9 @@ from pages.scrape_lacuarta import scrape_lacuarta
 from pages.scrape_somoskudasai import scrape_somoskudazai
 from pages.scrape_animeflv import scrape_animeflv
 from pages.scrape_recetas_gratis import scrape_recetas_gratis
-
 from pages.scrape_google_trends import scrape_google_trends
+from pages.scrape_ciperchile import scrape_ciperchile
+from pages.scrape_latercera import scrape_latercera
 
 load_dotenv()
 setup_logging()
@@ -82,6 +83,8 @@ def scrape_by_interval(interval: str) -> None:
         scrape_and_send("animeflv", scrape_animeflv)
         scrape_and_send("recetas_gratis", scrape_recetas_gratis)
         scrape_and_send("google_trends", scrape_google_trends)
+        scrape_and_send("ciperchile", scrape_ciperchile)
+        scrape_and_send("latercera", scrape_latercera)
         pass
     elif interval == "daily":
         pass

@@ -13,7 +13,7 @@ on:
 
 jobs:
   scrape_hourly:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,6 +27,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          playwright install
     
       - name: Run scraper
         run: |
@@ -39,6 +40,8 @@ jobs:
           ANIMEFLV_WEBHOOK: ${{ secrets.ANIMEFLV_WEBHOOK }}
           RECETAS_GRATIS_WEBHOOK: ${{ secrets.RECETAS_GRATIS_WEBHOOK }}
           GOOGLE_TRENDS_WEBHOOK: ${{ secrets.GOOGLE_TRENDS_WEBHOOK }}
+          CIPERCHILE_WEBHOOK: ${{ secrets.CIPERCHILE_WEBHOOK }}
+          LATERCERA_WEBHOOK: ${{ secrets.LATERCERA_WEBHOOK }}
 
   # scrape_daily:
   #   runs-on: ubuntu-latest
