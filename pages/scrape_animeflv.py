@@ -8,17 +8,12 @@ import requests
 from bs4 import BeautifulSoup
 from bs4.element import ResultSet
 
-from core.utils import get_current_timestamp_extend
-
 
 def scrape_animeflv() -> List[str]:
     """Scraper for AnimeFLV."""
     url: str = "https://m.animeflv.net"
     response: requests.Response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-
-    # Get the current timestamp
-    timestamp: str = get_current_timestamp_extend()
 
     # Find all <li> elements with class "Episode"
     divs: ResultSet[Any] = soup.find_all("li", class_="Episode")
@@ -58,7 +53,7 @@ def scrape_animeflv() -> List[str]:
             formatted_episode: str = f"Episodio {episode_number}"
 
             links.append(
-                f"# {title_text} - {formatted_episode}\n\n> `{timestamp}`\n\nImage: {img_link}\nLink: <{link}>"
+                f"# {title_text} - {formatted_episode}\n\nImage: {img_link}\nLink: <{link}>"
             )
 
     return links
